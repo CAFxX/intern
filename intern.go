@@ -18,13 +18,14 @@ var pool sync.Pool = sync.Pool{
 
 // String returns s, interned.
 func String(s string) string {
+	// TODO: replace with `return Strings(s)[0]` if they compile to the same machine code
 	m := pool.Get().(interningTable)
 	is := m.intern(s)
 	pool.Put(m)
 	return is
 }
 
-// Strings returns, for each string in the provided slice, the corresponding interned string
+// Strings returns, for each string provided, the corresponding interned string
 func Strings(ss ...string) []string {
 	m := pool.Get().(interningTable)
 	for i, s := range ss {
