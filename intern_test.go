@@ -24,6 +24,17 @@ func TestString(t *testing.T) {
 	}
 }
 
+func TestStrings(t *testing.T) {
+	s := "abcde"
+	sub := Strings(s[1:4])
+	interned := Strings("bcd")
+	want := (*reflect.StringHeader)(unsafe.Pointer(&sub[0])).Data
+	got := (*reflect.StringHeader)(unsafe.Pointer(&interned[0])).Data
+	if want != got {
+		t.Errorf("failed to intern string")
+	}
+}
+
 func TestBytes(t *testing.T) {
 	s := bytes.Repeat([]byte("abc"), 100)
 	n := testing.AllocsPerRun(100, func() {
@@ -46,6 +57,19 @@ func BenchmarkString(b *testing.B) {
 			s = String(in[1:5])
 		}
 		_ = s
+	})
+}
+
+func BenchmarkStrings(b *testing.B) {
+	in := "hello brad"
+	b.ReportAllocs()
+	b.SetBytes(int64(len(in)))
+	b.RunParallel(func(pb *testing.PB) {
+		var ss []string
+		for pb.Next() {
+			ss = Strings(in[1:5], in[5:], in, in[:5])
+		}
+		_ = ss
 	})
 }
 
